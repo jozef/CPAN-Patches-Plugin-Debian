@@ -1,0 +1,5 @@
+Revision history for CPAN-Patches
+
+0.01     1 Mar 2010
+    * created via removing Debian specific code from CPAN::Patches
+
