@@ -1,5 +1,9 @@
 Revision history for CPAN-Patches
 
+0.02     2 Mar 2010
+    * replaced Dpkg::Version by Debian::Dpkg::Version
+    * fixed copying updated patches
+
 0.01     1 Mar 2010
     * created via removing Debian specific code from CPAN::Patches
 

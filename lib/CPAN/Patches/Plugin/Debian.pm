@@ -26,7 +26,7 @@ Debian patches set folder.
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Moose::Role;
 
@@ -39,7 +39,7 @@ use Test::Deep::NoTest 'eq_deeply';
 use File::Copy 'copy';
 use Parse::Deb::Control '0.03';
 use File::chdir;
-use Dpkg::Version 'version_compare';
+use Debian::Dpkg::Version 'version_compare';
 
 =head1 METHODS
 
