@@ -40,6 +40,8 @@ use File::Copy 'copy';
 use Parse::Deb::Control '0.03';
 use File::chdir;
 use Debian::Dpkg::Version 'version_compare';
+use CPAN::Patches;
+use File::Basename 'basename';
 
 =head1 METHODS
 
@@ -85,7 +87,13 @@ sub update_debian {
                 if $self->verbose;
             copy($patch_filename, $debian_patches_path);
         }
-        IO::Any->spew([$debian_patches_path, 'series'], join("\n", @series));
+        IO::Any->spew(
+			[$debian_patches_path, 'series'],
+			join(
+				"\n",
+				map { basename($_) } @series
+			)."\n"
+		);
     }
 
     # write new debian/rules
@@ -98,9 +106,10 @@ sub update_debian {
     );
     
     # update dependencies
+    my $cpanp = CPAN::Patches->new;
     foreach my $dep_type ('Depends', 'Build-Depends', 'Build-Depends-Indep') {
-        my $dep = {CPAN::Patches->get_deb_package_names($deb_control, $dep_type)};
-        my $new_dep = CPAN::Patches->merge_debian_versions($dep, $debian_data->{$dep_type} || {});
+        my $dep = {$cpanp->get_deb_package_names($deb_control, $dep_type)};
+        my $new_dep = $cpanp->merge_debian_versions($dep, $debian_data->{$dep_type} || {});
         
         if ($debian_data->{'X'} and ($dep_type eq 'Build-Depends-Indep')) {
             $new_dep->{'xauth'} = '';
@@ -253,10 +262,11 @@ sub decode_debian {
     my $self = shift;
     my $src  = shift or die 'pass source';
     
+    my $cpanp = CPAN::Patches->new;
     my $deb_control = Parse::Deb::Control->new($src);
-    my %depends             = CPAN::Patches->get_deb_package_names($deb_control, 'Depends');
-    my %build_depends       = CPAN::Patches->get_deb_package_names($deb_control, 'Build-Depends');
-    my %build_depends_indep = CPAN::Patches->get_deb_package_names($deb_control, 'Build-Depends-Indep');
+    my %depends             = $cpanp->get_deb_package_names($deb_control, 'Depends');
+    my %build_depends       = $cpanp->get_deb_package_names($deb_control, 'Build-Depends');
+    my %build_depends_indep = $cpanp->get_deb_package_names($deb_control, 'Build-Depends-Indep');
     my ($app) = 
         map { s/^\s*//;$_; }
 		map { s/\s*$//;$_; }
