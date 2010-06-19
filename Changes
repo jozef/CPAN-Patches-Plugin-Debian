@@ -1,5 +1,9 @@
 Revision history for CPAN-Patches
 
+0.03    19 Jun 2010
+    * quilt 3.0 format
+    * handle also post/pre inst files
+
 0.02     2 Mar 2010
     * replaced Dpkg::Version by Debian::Dpkg::Version
     * fixed copying updated patches

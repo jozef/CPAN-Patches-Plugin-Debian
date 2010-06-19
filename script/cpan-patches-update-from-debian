@@ -11,7 +11,7 @@ cpan-patches-update-from-debian - update patch set based on content of Debian pk
 		--pkg-perl=/path/to
 			default is /var/lib/cpan-patches/pkg-perl-trunk
 		--cpan-patches=/path/to2
-			default is /var/log/cpan-patches/debian-set
+			default is /var/lib/cpan-patches/debian-set
 
 =head1 DESCRIPTION
 
@@ -86,7 +86,8 @@ sub update_debian {
 		my $cpan_name  = $cpanp->clean_meta_name($meta->{'name'}) || die 'missing name in meta - '.$dist_folder;
 
 		my $cpan_patch_folder          = dir($cpan_patches_folder, $cpan_name)->stringify;
-		my $cpan_patch_debian_filename = file($cpan_patch_folder, 'debian')->stringify;
+		my $cpan_patch_folder_debian   = dir($cpan_patch_folder, 'debian')->stringify;
+		my $cpan_patch_debian_filename = file($cpan_patch_folder_debian, 'control')->stringify;
 		my $debian_control_filename    = file($dist_folder, 'debian', 'control')->stringify;
 		
 		if (not -f $cpan_patch_debian_filename or File::is->older($cpan_patch_debian_filename, $debian_control_filename)) {
@@ -133,7 +134,27 @@ sub update_debian {
 				);
 			}
 			
+			# create debian/ folder if needed
+			mkdir($cpan_patch_folder_debian)
+				if not -e $cpan_patch_folder_debian;
+			
+			# write debian/control
 			IO::Any->spew([$cpan_patch_debian_filename], $cpanp->encode_debian(\%debian_data));
+			
+			# copy also all post/pre inst files
+			foreach my $inst ($cpanp->debian_inst_script_names) {
+				my $src_inst = file($dist_folder, 'debian', $inst)->stringify;
+				my $dst_inst = file($cpan_patch_folder, 'debian', $inst)->stringify;
+				
+				# remove inst if no longer exists in debian
+				if (not -f $src_inst) {
+					unlink($dst_inst)
+						if -f $dst_inst;
+				}
+				else {
+					copy($src_inst, $dst_inst) or die $!;
+				}
+			}
 		}
 	}
 }
@@ -195,10 +216,11 @@ sub update_patches {
 
 		foreach my $patch_name (@deb_series) {
 			#print 'copy ', file($dist_folder, 'debian', 'patches', $patch_name), ' to ', $cpan_patch_series_folder, "\n";
+			my $patch_src_filename = file($dist_folder, 'debian', 'patches', $patch_name)->stringify;
 			copy(
-				file($dist_folder, 'debian', 'patches', $patch_name),
+				$patch_src_filename,
 				$cpan_patch_series_folder,
-			) or die $!;
+			) or warn 'copy of '.$patch_src_filename.' to '.$cpan_patch_series_folder.' failed - '.$!;
 			
 			# add to series if it is not already there
 			push @cpan_patch_series, $patch_name

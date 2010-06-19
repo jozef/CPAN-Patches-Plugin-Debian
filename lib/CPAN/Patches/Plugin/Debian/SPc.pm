@@ -9,7 +9,7 @@ CPAN::Patches::Plugin::Debian::SPc - Debian specific folders
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 
 use File::Spec;
 

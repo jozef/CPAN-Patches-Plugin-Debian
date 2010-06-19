@@ -26,7 +26,7 @@ Debian patches set folder.
 use warnings;
 use strict;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Moose::Role;
 
@@ -71,7 +71,7 @@ sub update_debian {
 
     my $meta     = $self->read_meta($path);
     my $name     = $self->clean_meta_name($meta->{'name'}) or croak 'no name in meta';
-    my $debian_data = $self->read_debian($name);
+    my $debian_data = $self->read_debian_control($name);
     my $deb_control = Parse::Deb::Control->new([$debian_control_filename]);
     
     die $name.' has disabled auto build'
@@ -79,13 +79,16 @@ sub update_debian {
     
     my @series = $self->get_patch_series($name);
     if (@series) {
+		# apply patches to the source (quilt 3.0 source format)
+		$self->patch($path);
+		
         make_path($debian_patches_path)
             if not -d $debian_patches_path;
             
         foreach my $patch_filename (@series) {
             print 'copy ', $patch_filename,' to ', $debian_patches_path, "\n"
                 if $self->verbose;
-            copy($patch_filename, $debian_patches_path);
+            copy($patch_filename, $debian_patches_path) or die $!;
         }
         IO::Any->spew(
 			[$debian_patches_path, 'series'],
@@ -99,11 +102,24 @@ sub update_debian {
     # write new debian/rules
     IO::Any->spew(
         [$debian_path, 'rules'],
-        "#!/usr/bin/make -f\n\n%:\n	"
-        .($debian_data->{'X'} ? 'xvfb-run -a ' : '')
-        .'dh '.(@series ? '--with quilt ': '').'$@'
+        "#!/usr/bin/make -f\n\n"
+        .($debian_data->{'X'} ? "override_dh_auto_test:\n	xvfb-run -a dh_auto_test\n\n" : '')
+		."%:\n	"
+        .'dh $@'
         ."\n"
     );
+	
+	# if there are patches set the format to quilt 3.0
+	if (@series) {
+		my $debian_source_folder = File::Spec->catdir($debian_path, 'source');
+		mkdir($debian_source_folder)
+			if (not -d $debian_source_folder);
+		
+		IO::Any->spew(
+			[$debian_path, 'source', 'format'],
+			"3.0 (quilt)\n",
+		);
+	}
     
     # update dependencies
     my $cpanp = CPAN::Patches->new;
@@ -116,7 +132,7 @@ sub update_debian {
             $new_dep->{'xvfb'}  = '';
         }
         if (@series and ($dep_type eq 'Build-Depends-Indep')) {
-            $new_dep->{'quilt'} = '';
+            $new_dep->{'debhelper'} = '(>= 7.0.50~)';
         }
         
         # update if dependencies if needed
@@ -146,6 +162,17 @@ sub update_debian {
         }
     }
     
+	# copy all post/pre inst
+	foreach my $inst ($self->debian_inst_script_names) {
+		my $src = File::Spec->catfile($self->patch_set_location, $name, 'debian', $inst);
+		my $dst = File::Spec->catfile($debian_path, $inst);
+		
+		if (-r $src) {
+			print 'copy ', $src,' to ', $dst, "\n"
+				if $self->verbose;
+			copy($src, $dst) or die $!;
+		}
+	}
     
     return;
 }
@@ -235,30 +262,30 @@ sub get_deb_package_names {
 	;
 }
 
-=head2 read_debian($name)
+=head2 read_debian_control($name)
 
 Read F<.../module-name/debian> for given C<$name>.
 
 =cut
 
-sub read_debian {
+sub read_debian_control {
     my $self = shift;
     my $name = shift or croak 'pass name param';
     
-    my $debian_filename  = File::Spec->catfile($self->patch_set_location, $name, 'debian');
+    my $debian_filename  = File::Spec->catfile($self->patch_set_location, $name, 'debian', 'control');
     return {}
         if not -r $debian_filename;
     
-    return $self->decode_debian([$debian_filename]);
+    return $self->decode_debian_control([$debian_filename]);
 }
 
-=head2 decode_debian($src)
+=head2 decode_debian_control($src)
 
 Parses F<.../module-name/debian> into a hash. Returns hash reference.
 
 =cut
 
-sub decode_debian {
+sub decode_debian_control {
     my $self = shift;
     my $src  = shift or die 'pass source';
     
@@ -329,6 +356,21 @@ sub encode_debian {
         if exists $data->{'X'};
     
     return $content;
+}
+
+=head2 debian_inst_script_names
+
+Returns array of pre/post inst file names.
+
+=cut
+
+sub debian_inst_script_names {
+	return qw{
+		preinst
+		postinst
+		prerm
+		postrm
+	};
 }
 
 1;
