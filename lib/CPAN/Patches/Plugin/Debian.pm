@@ -40,7 +40,7 @@ use File::Copy 'copy';
 use Parse::Deb::Control '0.03';
 use File::chdir;
 use Debian::Dpkg::Version 'version_compare';
-use CPAN::Patches;
+use CPAN::Patches 0.04;
 use File::Basename 'basename';
 
 =head1 METHODS
@@ -164,7 +164,7 @@ sub update_debian {
     
 	# copy all post/pre inst
 	foreach my $inst ($self->debian_inst_script_names) {
-		my $src = File::Spec->catfile($self->patch_set_location, $name, 'debian', $inst);
+		my $src = File::Spec->catfile($self->get_module_folder($name), 'debian', $inst);
 		my $dst = File::Spec->catfile($debian_path, $inst);
 		
 		if (-r $src) {
@@ -272,7 +272,7 @@ sub read_debian_control {
     my $self = shift;
     my $name = shift or croak 'pass name param';
     
-    my $debian_filename  = File::Spec->catfile($self->patch_set_location, $name, 'debian', 'control');
+    my $debian_filename  = File::Spec->catfile($self->get_module_folder($name), 'debian', 'control');
     return {}
         if not -r $debian_filename;
     
