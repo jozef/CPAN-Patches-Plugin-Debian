@@ -155,7 +155,7 @@ sub update_debian {
     
     if (my $app_name = $debian_data->{'App'}) {
         local $CWD = $debian_path;
-        my $lib_name = 'lib'.$name.'-perl';
+        my $lib_name = '(?:lib)?'.$name.'-perl';    # "(?:lib)?" becasue libwww-perl has no "double lib" prefix
         system(q{perl -lane 's/}.$lib_name.q{/}.$app_name.q{/;print' -i *});
         foreach my $filename (glob($lib_name.'*')) {
             rename($filename, $app_name.substr($filename, 0-length($lib_name)));

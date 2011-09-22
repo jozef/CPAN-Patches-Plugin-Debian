@@ -11,10 +11,10 @@ my $builder = Module::Build::SysPath->new(
     dist_version_from => 'lib/CPAN/Patches/Plugin/Debian.pm',
     
     configure_requires => {
-        'Module::Build::SysPath' => 0.13,
+        'Module::Build::SysPath' => 0.16,
     },
     build_requires => {
-        'Module::Build::SysPath' => 0.13,
+        'Module::Build::SysPath' => 0.16,
         'Test::More'             => 0,
     },
     requires => {

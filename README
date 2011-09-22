@@ -38,14 +38,17 @@ INTERNAL METHODS
     Return hash with package name as key and version string as value for
     given `$key' in Debian `$control' file.
 
-  read_debian($name)
+  read_debian_control($name)
     Read .../module-name/debian for given `$name'.
 
-  decode_debian($src)
+  decode_debian_control($src)
     Parses .../module-name/debian into a hash. Returns hash reference.
 
   encode_debian($data)
     Return .../module-name/debian content string generated from `$data'.
+
+  debian_inst_script_names
+    Returns array of pre/post inst file names.
 
 AUTHOR
     jozef@kutej.net, `<jkutej at cpan.org>'
