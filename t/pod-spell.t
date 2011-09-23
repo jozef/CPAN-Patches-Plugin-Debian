@@ -21,5 +21,9 @@ add_stopwords(qw(
 	CPAN
 	AnnoCPAN
 	http
+	cpan
+	debian
+	pkg
+	sharedstatedir
 ));
 all_pod_files_spelling_ok();

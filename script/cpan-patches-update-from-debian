@@ -15,8 +15,8 @@ cpan-patches-update-from-debian - update patch set based on content of Debian pk
 
 =head1 DESCRIPTION
 
-Extracts Debian dependencies from an pkg-perl checkout and updates an
-cpan-patches set.
+Extracts Debian dependencies from an C<pkg-perl> checkout and updates an
+C<cpan-patches-set>.
 
 =cut
 

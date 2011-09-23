@@ -3,6 +3,7 @@ Changes
 lib/CPAN/Patches/Plugin/Debian.pm
 lib/CPAN/Patches/Plugin/Debian/SPc.pm
 MANIFEST			This list of files
+META.json
 META.yml
 README
 script/cpan-patches-update-from-debian

@@ -23,7 +23,7 @@ sub _path_types {qw(
 
 =head2 sharedstatedir
 
-Used to store Debian patch set and svn trunk
+Used to store Debian patch set and git checkout
 
 =cut
 

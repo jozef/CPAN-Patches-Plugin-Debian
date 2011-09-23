@@ -25,13 +25,13 @@ METHODS
     the modules requires X and renames `s/lib(.*)-perl/$1/' if the
     distribution is an application.
 
-cpan-patches CMD
+cpan-patches command
   cmd_update_debian
     See update_debian.
 
 INTERNAL METHODS
   merge_debian_versions($v1, $v2)
-    Merges dependecies from `$v1' and `$v2' by keeping the ones that has
+    Merges dependencies from `$v1' and `$v2' by keeping the ones that has
     higher version (if the same).
 
   get_deb_package_names($control, $key)
@@ -48,7 +48,7 @@ INTERNAL METHODS
     Return .../module-name/debian content string generated from `$data'.
 
   debian_inst_script_names
-    Returns array of pre/post inst file names.
+    Returns array of pre/post installation file names.
 
 AUTHOR
     jozef@kutej.net, `<jkutej at cpan.org>'

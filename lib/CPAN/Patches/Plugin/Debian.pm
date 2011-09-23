@@ -177,7 +177,7 @@ sub update_debian {
     return;
 }
 
-=head1 cpan-patches CMD
+=head1 cpan-patches command
 
 =head2 cmd_update_debian
 
@@ -194,7 +194,7 @@ sub cmd_update_debian {
 
 =head2 merge_debian_versions($v1, $v2)
 
-Merges dependecies from C<$v1> and C<$v2> by keeping the ones that has
+Merges dependencies from C<$v1> and C<$v2> by keeping the ones that has
 higher version (if the same).
 
 =cut
@@ -360,7 +360,7 @@ sub encode_debian {
 
 =head2 debian_inst_script_names
 
-Returns array of pre/post inst file names.
+Returns array of pre/post installation file names.
 
 =cut
 

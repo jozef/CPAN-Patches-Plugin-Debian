@@ -12,6 +12,7 @@ my $builder = Module::Build::SysPath->new(
     
     configure_requires => {
         'Module::Build::SysPath' => 0.16,
+        'Module::Build' => '0.36',
     },
     build_requires => {
         'Module::Build::SysPath' => 0.16,
