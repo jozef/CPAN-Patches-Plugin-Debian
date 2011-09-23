@@ -1,26 +1,5 @@
 #!/usr/bin/perl
 
-=head1 NAME
-
-cpan-patches-update-from-debian - update patch set based on content of Debian pkg-perl repository
-
-=head1 SYNOPSIS
-
-	cpan-patches-update-from-debian
-	
-		--pkg-perl=/path/to
-			default is /var/lib/cpan-patches/pkg-perl-trunk
-		--cpan-patches=/path/to2
-			default is /var/lib/cpan-patches/debian-set
-
-=head1 DESCRIPTION
-
-Extracts Debian dependencies from an C<pkg-perl> checkout and updates an
-C<cpan-patches-set>.
-
-=cut
-
-
 use strict;
 use warnings;
 
@@ -230,3 +209,25 @@ sub update_patches {
 		IO::Any->spew($cpan_patch_series_filename, join("\n", @cpan_patch_series)."\n");
 	}
 }
+
+__END__
+
+=head1 NAME
+
+cpan-patches-update-from-debian - update patch set based on content of Debian pkg-perl repository
+
+=head1 SYNOPSIS
+
+	cpan-patches-update-from-debian
+	
+		--pkg-perl=/path/to
+			default is /var/lib/cpan-patches/pkg-perl-trunk
+		--cpan-patches=/path/to2
+			default is /var/lib/cpan-patches/debian-set
+
+=head1 DESCRIPTION
+
+Extracts Debian dependencies from an C<pkg-perl> checkout and updates an
+C<cpan-patches-set>.
+
+=cut

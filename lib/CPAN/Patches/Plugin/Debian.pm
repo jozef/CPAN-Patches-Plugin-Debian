@@ -1,28 +1,5 @@
 package CPAN::Patches::Plugin::Debian;
 
-=head1 NAME
-
-CPAN::Patches::Plugin::Debian - patch CPAN distributions Debian package
-
-=head1 SYNOPSIS
-
-    cd Some-Distribution
-    dh-make-perl
-    cpan-patches list
-    cpan-patches update-debian
-    cpan-patches --patch-set $HOME/cpan-patches-set list
-    cpan-patches --patch-set $HOME/cpan-patches-set update-debian
-
-=head1 DESCRIPTION
-
-This module allows to apply custom patches to the CPAN distributions
-Debian package.
-
-See L<http://github.com/jozef/CPAN-Patches-Debian-Set> for example generated
-Debian patches set folder.
-
-=cut
-
 use warnings;
 use strict;
 
@@ -42,19 +19,6 @@ use File::chdir;
 use Debian::Dpkg::Version 'version_compare';
 use CPAN::Patches 0.04;
 use File::Basename 'basename';
-
-=head1 METHODS
-
-=head2 update_debian
-
-Copy all patches and F<series> file from F<.../module-name/patches/> to
-F<debian/patches> folder. If there are any patches add C<quilt> as
-C<Build-Depends-Indep> and runs adds C<--with quilt> to F<debian/rules>.
-Adds dependencies from F<.../module-name/debian>, adds usage of C<xvfb-run>
-if the modules requires X and renames C<s/lib(.*)-perl/$1/> if the distribution
-is an application.
-
-=cut
 
 sub update_debian {
     my $self = shift;
@@ -177,27 +141,9 @@ sub update_debian {
     return;
 }
 
-=head1 cpan-patches command
-
-=head2 cmd_update_debian
-
-See L</update_debian>.
-
-=cut
-
 sub cmd_update_debian {
 	shift->update_debian();
 }
-
-
-=head1 INTERNAL METHODS
-
-=head2 merge_debian_versions($v1, $v2)
-
-Merges dependencies from C<$v1> and C<$v2> by keeping the ones that has
-higher version (if the same).
-
-=cut
 
 sub merge_debian_versions {
     my $self = shift;
@@ -235,13 +181,6 @@ sub merge_debian_versions {
 	return $versions1;    
 }
 
-=head2 get_deb_package_names($control, $key)
-
-Return hash with package name as key and version string as value for
-given C<$key> in Debian C<$control> file.
-
-=cut
-
 sub get_deb_package_names {
     my $self    = shift;
     my $control = shift or croak 'pass control object';
@@ -262,12 +201,6 @@ sub get_deb_package_names {
 	;
 }
 
-=head2 read_debian_control($name)
-
-Read F<.../module-name/debian> for given C<$name>.
-
-=cut
-
 sub read_debian_control {
     my $self = shift;
     my $name = shift or croak 'pass name param';
@@ -278,12 +211,6 @@ sub read_debian_control {
     
     return $self->decode_debian_control([$debian_filename]);
 }
-
-=head2 decode_debian_control($src)
-
-Parses F<.../module-name/debian> into a hash. Returns hash reference.
-
-=cut
 
 sub decode_debian_control {
     my $self = shift;
@@ -324,12 +251,6 @@ sub decode_debian_control {
     };
 }
 
-=head2 encode_debian($data)
-
-Return F<.../module-name/debian> content string generated from C<$data>.
-
-=cut
-
 sub encode_debian {
     my $self = shift;
     my $data = shift;
@@ -358,12 +279,6 @@ sub encode_debian {
     return $content;
 }
 
-=head2 debian_inst_script_names
-
-Returns array of pre/post installation file names.
-
-=cut
-
 sub debian_inst_script_names {
 	return qw{
 		preinst
@@ -377,6 +292,72 @@ sub debian_inst_script_names {
 
 
 __END__
+
+=head1 NAME
+
+CPAN::Patches::Plugin::Debian - patch CPAN distributions Debian package
+
+=head1 SYNOPSIS
+
+    cd Some-Distribution
+    dh-make-perl
+    cpan-patches list
+    cpan-patches update-debian
+    cpan-patches --patch-set $HOME/cpan-patches-set list
+    cpan-patches --patch-set $HOME/cpan-patches-set update-debian
+
+=head1 DESCRIPTION
+
+This module allows to apply custom patches to the CPAN distributions
+Debian package.
+
+See L<http://github.com/jozef/CPAN-Patches-Debian-Set> for example generated
+Debian patches set folder.
+
+=head1 METHODS
+
+=head2 update_debian
+
+Copy all patches and F<series> file from F<.../module-name/patches/> to
+F<debian/patches> folder. If there are any patches add C<quilt> as
+C<Build-Depends-Indep> and runs adds C<--with quilt> to F<debian/rules>.
+Adds dependencies from F<.../module-name/debian>, adds usage of C<xvfb-run>
+if the modules requires X and renames C<s/lib(.*)-perl/$1/> if the distribution
+is an application.
+
+=head1 cpan-patches command
+
+=head2 cmd_update_debian
+
+See L</update_debian>.
+
+=head1 INTERNAL METHODS
+
+=head2 merge_debian_versions($v1, $v2)
+
+Merges dependencies from C<$v1> and C<$v2> by keeping the ones that has
+higher version (if the same).
+
+=head2 get_deb_package_names($control, $key)
+
+Return hash with package name as key and version string as value for
+given C<$key> in Debian C<$control> file.
+
+=head2 read_debian_control($name)
+
+Read F<.../module-name/debian> for given C<$name>.
+
+=head2 decode_debian_control($src)
+
+Parses F<.../module-name/debian> into a hash. Returns hash reference.
+
+=head2 encode_debian($data)
+
+Return F<.../module-name/debian> content string generated from C<$data>.
+
+=head2 debian_inst_script_names
+
+Returns array of pre/post installation file names.
 
 =head1 AUTHOR
 
